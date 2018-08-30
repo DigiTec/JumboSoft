@@ -8,8 +8,8 @@
     <meta property="og:type" content="game" />
     <meta property="og:description" content="Take your turn at becoming the CEO of a major software company. Be warned, you have to work your way up the ranks first."
     />
-    <meta property="og:url" content="http://jumbosoft.azurewebsites.net" />
-    <meta property="og:image" content="http://jumbosoft.azurewebsites.net/images/logo.png" />
+    <meta property="og:url" content="https://digitec.github.io/JumboSoft" />
+    <meta property="og:image" content="https://digitec.github.io/JumboSoft/images/logo.png" />
 
     <script type="text/ecmascript" src="js/Math.js"></script>
     <script type="text/ecmascript" src="js/Array.js"></script>
@@ -199,8 +199,10 @@
             }
             localStyle.visibility = oldVisibility;
 
-            // Click is done here, after setting visibility back in order to prevent flashing.
-            target.click();
+            if (target !== null) {
+                // Click is done here, after setting visibility back in order to prevent flashing.
+                target.click();
+            }
         }
         var _clickThrough = _clickThroughVis;
 

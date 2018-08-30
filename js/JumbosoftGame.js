@@ -197,22 +197,30 @@ Object.defineProperties(JumbosoftGame.prototype, {
     value: function saveGame() {
       var rootObject = {};
       this.save(rootObject);
-      window.localStorage["saveGame"] = window.btoa(JSON.stringify(rootObject));
+      if (typeof window.localStorage !== "undefined") {
+        window.localStorage["saveGame"] = window.btoa(
+          JSON.stringify(rootObject)
+        );
+      }
     }
   },
   loadGame: {
     value: function load() {
-      if (window.localStorage["saveGame"]) {
-        var rootObject = JSON.parse(
-          window.atob(window.localStorage["saveGame"])
-        );
-        this.load(rootObject);
+      if (typeof window.localStorage !== "undefined") {
+        if (window.localStorage["saveGame"]) {
+          var rootObject = JSON.parse(
+            window.atob(window.localStorage["saveGame"])
+          );
+          this.load(rootObject);
+        }
       }
     }
   },
   resetGame: {
     value: function resetGame() {
-      window.localStorage.removeItem("saveGame");
+      if (typeof window.localStorage !== "undefined") {
+        window.localStorage.removeItem("saveGame");
+      }
       window.location.reload();
     }
   }
