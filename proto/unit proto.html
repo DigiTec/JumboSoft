@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html style="background-color: black;">
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="80">
+    <defs>
+        <filter id="blur">
+            <feGaussianBlur stdDeviation="4" in="SourceGraphic" result="blur"/>
+            <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+        </filter>
+    </defs>
+
+   <polygon points="10,10 300,10 350,60 20,60" style="filter:url(#blur);fill:transparent;stroke:cyan;stroke-width:3;"/>
+
+   <line x1="46.25" y1="10" x2="61.25" y2="60" style="stroke:cyan;stroke-width:1"/>
+   <line x1="82.5" y1="10" x2="102.5" y2="60" style="stroke:cyan;stroke-width:1"/>
+   <line x1="118.75" y1="10" x2="143.75" y2="60" style="stroke:cyan;stroke-width:1"/>
+   <line x1="155" y1="10" x2="185" y2="60" style="stroke:cyan;stroke-width:1"/>
+   <line x1="191.25" y1="10" x2="226.25" y2="60" style="stroke:cyan;stroke-width:1"/>
+   <line x1="227.5" y1="10" x2="267.5" y2="60" style="stroke:cyan;stroke-width:1"/>
+   <line x1="263.75" y1="10" x2="308.75" y2="60" style="stroke:cyan;stroke-width:1"/>
+
+   <line x1="12.25" y1="22" x2="313" y2="22" style="stroke:rgba(0,255,255,0.8);stroke-width:1"/>
+   <line x1="15" y1="35" x2="327" y2="35" style="stroke:rgba(0,255,255,0.8);stroke-width:1"/>
+   <line x1="17" y1="50" x2="339" y2="50" style="stroke:rgba(0,255,255,0.8);stroke-width:1"/>
+
+   <text x="25" y="25" stroke="black" fill="cyan" font-family="impact" font-size="2em">Automation Software</text>
+   <text x="30" y="50" stroke="black" fill="cyan" font-family="impact" font-size="1.4em">$4000</text>
+   <text x="280" y="50" stroke="black" fill="white" font-family="impact" font-size="1.4em">x 25</text>
+</svg>
+
+</body>
+</htm>

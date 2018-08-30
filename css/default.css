@@ -1,0 +1,800 @@
+﻿.debug {
+    display: none;
+    position: absolute;
+    left: 0px;
+    background: cyan;
+}
+
+html, body {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    -ms-user-select: none;
+    background: black;
+    cursor: default;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+#playCanvas {
+    position: absolute;
+    width: 1366px;
+    height: 768px;
+    margin: auto;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    color: white;
+    background-size: 100% 100%;
+    z-index: 4;
+    /*
+    border: 5px solid green;
+    */
+    overflow: visible;
+}
+
+#copyright {
+    bottom: -40px;
+    right: 30px;
+    position: absolute;
+}
+
+@keyframes diskSpinAnimation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+@keyframes diskSpinAnimation2 {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+@-webkit-keyframes diskSpinAnimation {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+@-webkit-keyframes diskSpinAnimation2 {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+#disk {
+    position: absolute;
+    width: 402px;
+    height: 402px;
+    left: 400px;
+    top: 170px;
+    background-image: url(../images/disk.png);
+    animation: diskSpinAnimation 5s linear;
+    -webkit-animation: diskSpinAnimation 5s linear;
+    cursor: pointer;
+}
+#disk.secondary {
+    animation: diskSpinAnimation2 5s linear;
+    -webkit-animation: diskSpinAnimation2 5s linear;
+}
+
+
+#digitHolder {
+    position: absolute;
+    left: 282px;
+    top: 0px;
+}
+
+@keyframes digitAnimation {
+    from {
+        top: 0px;
+        opacity: 0.6;
+    }
+    to {
+        top: 500px;
+        opacity: 0;
+    }
+}
+@-webkit-keyframes digitAnimation {
+    from {
+        top: 0px;
+        opacity: 0.6;
+    }
+    to {
+        top: 500px;
+        opacity: 0;
+    }
+}
+
+.digit {
+    position: absolute;
+    background-size: 100% 100%;
+    animation: digitAnimation 3.5s ease-in;
+    -webkit-animation: digitAnimation 3.5s ease-in;
+    writing-mode: tb-lr;
+    color: white;
+    font-weight: bold;
+    font-size: 1.5em;
+    opacity: 0.5;
+    height: 2000px;
+    z-index: -1;
+}
+
+.layout {
+    position: absolute;
+    color: cyan;
+}
+
+.right {
+    width: 375px;
+    height: 116px;
+    background-image: url(../images/bg_rightPanel.png);
+    font-family: impact;
+    cursor: pointer;
+}
+.right.active {
+    background-image: url(../images/bg_rightPanel_gold.png);
+}
+
+.left {
+    width: 144px;
+    height: 126px;
+    background-image: url(../images/bg_leftHex.png);
+    font-family: impact;
+    background-position: center;
+    background-size:contain;
+}
+
+.left.active {
+    width: 144px;
+    height: 126px;
+    background-image: url(../images/bg_leftHexActive.png);
+    font-family: impact;
+}
+
+#Left11 {
+    left: 0px;
+    top: 110px;
+}
+
+#Left12 {
+    left: 0px;
+    top: 230px;
+}
+
+#Left13 {
+    left: 0px;
+    top: 350px;
+}
+
+#Left14 {
+    left: 0px;
+    top: 470px;
+}
+
+#Left15 {
+    left: 0px;
+    top: 590px;
+}
+
+
+#Left21 {
+    left: 100px;
+    top: 170px;
+}
+
+#Left22 {
+    left: 100px;
+    top: 290px;
+}
+
+#Left23 {
+    left: 100px;
+    top: 410px;
+}
+
+#Left24 {
+    left: 100px;
+    top: 530px;
+}
+
+#Left25 {
+    left: 100px;
+    top: 650px;
+}
+
+#rightPanel {
+    position:absolute;
+    top: 130px;
+    right: 15px;
+}
+
+.rightSVG {
+    display: block;
+    stroke: cyan;
+    font-family: Impact;
+    cursor: default;
+    width: 360px;
+    height: 80px;
+    fill: transparent;
+    stroke-linejoin: round;
+}
+.rightSVG line {
+    stroke: rgba(0, 255, 255, 0.3);
+}
+.rightSVG .skillName {
+    stroke: black;
+    fill: cyan;
+    font-size: 2em;
+}
+.rightSVG .skillCost {
+    stroke: black;
+    fill: cyan;
+    font-size: 1.2em;
+}
+.rightSVG .skillUnit {
+    stroke: black;
+    fill: white;
+    font-size: 1.4em;
+}
+.rightSVG.active {
+    stroke: orange;
+    cursor: pointer;
+}
+.rightSVG.active .skillName {
+    fill: orange;
+}
+.rightSVG.active line {
+    stroke: rgba(255, 165, 0, 0.3);
+}
+.right {
+    width: 375px;
+    height: 116px;
+    background-image: url(../images/bg_rightPanel.png);
+    font-family: impact;
+    position: relative;
+}
+.right.active {
+    width: 375px;
+    height: 116px;
+    background-image: url(../images/bg_rightPanel_gold.png);
+    font-family: impact;
+}
+
+
+.skillName {
+    position: absolute;
+    //border: 1px solid red;
+    top: 30px;
+    left: 80px;
+    font-size: 1.8em;
+}
+
+.skillCost {
+    position: absolute;
+    top: 70px;
+    left: 100px;
+    font-size: 1em;
+    color: green;
+    letter-spacing: 2px;
+}
+
+#top1 {
+    left: 260px;
+    top: 0px;
+    width: 1045px;
+    height: 123px;
+    background-image: url(../images/bg_topPanel.png);
+}
+
+
+#totalStock {
+    position: absolute;
+    top: 30px;
+    left: 60px;
+    font-size: 2em;
+    color: cyan;
+    font-family: Impact;
+}
+
+#stockCount {
+    color: orange;
+}
+
+#SPS {
+    position: absolute;
+    top: 60px;
+    left: 60px;
+    font-size: 1.5em;
+    color: cyan;
+    font-family: Impact;
+    line-height: 2em;
+}
+
+#SPSCount {
+    color: orange;
+}
+
+#news {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    width: 500px;
+    font-size: 1.5em;
+    color: cyan;
+    font-family:Arial;
+    color: gold;
+    display: table;
+    font-size: 1.3em;
+}
+
+
+
+#top0 {
+    left: 10px;
+    top: 0px;
+    width: 250px;
+    height: 110px;
+}
+
+#currentTitle {
+    position: absolute;
+    top: 20px;
+    left: 0px;
+    font-size: 2em;
+    color: cyan;
+    font-family: Impact;
+}
+
+#titleName {
+    color: orange;
+}
+
+#gameTime {
+    position: absolute;
+    top: 120px;
+    left: 700px;
+    font-size: 1.5em;
+    color: cyan;
+    font-family: Impact;
+    line-height: 2em;
+    width: 300px;
+}
+
+#levelNumber{
+    color: orange;
+}
+
+#yearCount{
+    color: orange;
+    width: 50px;
+}
+#monthCount{
+    color: orange;
+    width: 50px;
+}
+#dayCount{
+    color: orange;
+    width: 50px;
+}
+
+.itemName {
+    position: absolute;
+    top: 20px;
+    left: 180px;
+    font-size: 1em;
+    color: white;
+}
+
+.itemName2 {
+    position: absolute;
+    top: 20px;
+    left: 50px;
+    font-size: 1em;
+    color: white;
+}
+
+.itemDesc {
+    position: absolute;
+    top: 45px;
+    left: 200px;
+    font-size: 1em;
+    width: 200px;
+}
+
+.itemDesc2 {
+    position: absolute;
+    top: 45px;
+    left: 60px;
+    font-size: 1em;
+    width: 200px;
+}
+
+.itemCost {
+    position: absolute;
+    top: 90px;
+    left: 0px;
+    font-size: 1em;
+    color: white;
+    letter-spacing: 2px;
+    width: 144px;
+    text-align: center;
+}
+
+.itemUpgrade {
+    position: absolute;
+    top: 110px;
+    left: 190px;
+    width: 120px;
+    height: 22px;
+    background-size: 100% auto;
+    background-image: url(../images/upgrade_button.png);
+    background-position: left;
+    background-repeat: no-repeat;
+}
+
+.itemUpgrade2 {
+    left: 195px;
+    top: 120px;
+}
+
+.skillUnit {
+    position: absolute;
+    top: 62px;
+    left: 250px;
+    font-size: 1.5em;
+    color: white;
+    letter-spacing: 2px;
+}
+
+
+
+.line {
+    width: 169px;
+    height: 148px;
+    font-family: impact;
+    display:none;
+    z-index:5;
+    background-position-y: bottom;
+    background-repeat:no-repeat;
+}
+
+.line.active {
+    width: 169px;
+    height: 148px;    
+    font-family: impact;
+    display:block;
+}
+
+#Line11 {
+    left: 80px;
+    top: 0px;
+    background-image: url(../images/Line_11.png);
+    width:532px;
+    height: 74px;
+}
+
+#Line12 {
+    left: 80px;
+    top: 55px;
+    width:541px;
+    height:97px;
+    background-image: url(../images/Line_12.png);
+}
+
+#Line13 {
+    left: 80px;
+    top: 50px;
+    width:541px;
+    height:97px;
+    background-image: url(../images/Line_12.png);
+}
+
+#Line14 {
+    left: 80px;
+    top: 20px;
+    width: 532px;
+    height: 110px;
+    background-image: url(../images/Line_14.png);
+}
+
+#Line15 {
+    left: 80px;
+    top: 20px;
+    width: 532px;
+    height: 110px;
+    background-image: url(../images/Line_14.png);
+}
+
+
+#Line21 {
+    left: 80px;
+    top: -10px;
+    background-image: url(../images/Line_21.png);
+    width:364px;
+    height: 85px;
+}
+
+#Line22 {
+    left: 80px;
+    top: 60px;
+    width:305px;
+    height:81px;
+    background-image: url(../images/Line_22.png);
+}
+
+#Line23 {
+    left: 80px;
+    top: 60px;
+    width:305px;
+    height:81px;
+    background-image: url(../images/Line_22.png);
+}
+
+#Line24 {
+    left: 80px;
+    top: -30px;
+    background-image: url(../images/Line_21.png);
+    width:364px;
+    height: 110px;
+}
+
+#Line25 {
+    left: 80px;
+    top: -30px;
+    background-image: url(../images/Line_21.png);
+    width:364px;
+    height: 110px;
+}
+
+
+.automation {
+    background-image: url(../images/upgrade_automation.png);
+}
+.contractor {
+    background-image: url(../images/upgrade_contractor.png);
+}
+.hardware {
+    background-image: url(../images/upgrade_hardware.png);
+}
+.blueBadge {
+    background-image: url(../images/upgrade_blueBadge.png);
+}
+.labs {
+    background-image: url(../images/upgrade_labs.png);
+}
+.architect {
+    background-image: url(../images/upgrade_architect.png);
+}
+.acquisition {
+    background-image: url(../images/upgrade_aquisition.png);
+}
+.cloud {
+    background-image: url(../images/upgrade_cloud.png);
+}
+.clicks {
+    background-image: url(../images/upgrade_click.png);
+}
+.handMadeStocks {
+    background-image: url(../images/upgrade_handMade.png);
+}
+
+
+.automation.active {
+    background-image: url(../images/upgrade_automation_active.png);
+}
+.contractor.active {
+    background-image: url(../images/upgrade_contractor_active.png);
+}
+.hardware.active {
+    background-image: url(../images/upgrade_hardware_active.png);
+}
+.blueBadge.active {
+    background-image: url(../images/upgrade_blueBadge_active.png);
+}
+.labs.active {
+    background-image: url(../images/upgrade_labs_active.png);
+}
+.architect.active {
+    background-image: url(../images/upgrade_architect_active.png);
+}
+.acquisition.active {
+    background-image: url(../images/upgrade_aquisition_active.png);
+}
+.cloud.active {
+    background-image: url(../images/upgrade_cloud_active.png);
+}
+.clicks.active {
+    background-image: url(../images/upgrade_click_active.png);
+}
+.handMadeStocks.active {
+    background-image: url(../images/upgrade_handMade_active.png);
+}
+
+#bottomPanel {
+    position: absolute;
+    bottom: 0px;
+    height: 64px;
+    left: 280px;
+    width: 700px;
+}
+#bottomDescriptionPanel {
+    position: absolute;
+    bottom: 68px;
+    left: 120px;
+    width: 461px;
+    height: 86px;
+    color: white;
+    background-image: url(../images/bg_achievement.png);
+}
+#bottomDescriptionPanel .name {
+    position: absolute;
+    display: inline-block;
+    left: 0px;
+    top: -5px;
+    right: 0px;
+    margin: auto;
+    width: 400px;
+    text-align: center;
+    font-size: 18pt;
+    font-weight: bold;
+}
+#bottomDescriptionPanel .description {
+    position: absolute;
+    display: inline-block;
+    left: 20px;
+    top: 30px;
+    text-align: center;
+    margin: auto;
+    width: 400px;
+    text-align: center;
+    font-size: 14pt;
+    font-style: italic;
+}
+#bottomPanel .leftBlend, #bottomPanel .rightBlend {
+    position: absolute;
+    top: 0px;
+    width: 100px;
+    height: 64px;
+    pointer-events: none;
+}
+#bottomPanel .leftBlend {
+    background-image: -ms-linear-gradient(left, rgba(0,0,0,1.0) 0%, rgba(0,0,0,0.0) 100%);
+    left: 0px;
+}
+#bottomPanel .rightBlend {
+    background-image: -ms-linear-gradient(right, rgba(0,0,0,1.0) 0%, rgba(0,0,0,0.0) 100%);
+    right: 0px;
+}
+#scrollWrapper {
+    position: absolute;
+    bottom: 0px;
+    height: 64px;
+    left: 0px;
+    width: 700px;
+    overflow: hidden;
+}
+#achievementPanel, #upgradePanel {
+    position: absolute;
+    bottom: -64px;
+    height: 128px;
+    left: 0px;
+    width: 700px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    overflow-x: auto;
+    -ms-scroll-translation: vertical-to-horizontal;
+}
+#achievementPanel .leftBump, #achievementPanel .rightBump {
+    display: inline-block;
+    width: 312px;
+    height: 64px;
+}
+#achievementPanel .achievement {
+    display: inline-block;
+    width: 64px; 
+    height: 64px;
+    box-sizing: border-box;
+    border: 2px solid cyan;
+    background-image: url(../images/achieve_locked.png);
+    background-position: center;
+    background-size: 40% 40%;
+    background-repeat:no-repeat;
+}
+#achievementPanel .achievement.unlocked {
+    border: 2px solid orange;
+    background-image: url(../images/achieve_promotion.png);
+    background-position: center;
+    background-size: 60% 60%;
+    background-repeat:no-repeat;
+}
+
+#digitFallHolder {
+    width: 800px;
+    height: 670px;
+    top: 100px;
+    left: 520px;
+    z-index: 0;
+    position:absolute;
+}
+
+.digitFallSlow {
+    animation: digitFallAnimation1 35s linear infinite;
+    background-image: url(../images/bg_digit1.png);
+}
+
+.digitFallMedium {
+    animation: digitFallAnimation2 35s linear infinite;
+        background-image: url(../images/bg_digit2.png);
+}
+
+.digitFallFast {
+    animation: digitFallAnimation3 35s linear infinite;
+        background-image: url(../images/bg_digit3.png);
+}
+
+.digitFallSuperFast {
+    animation: digitFallAnimation4 35s linear infinite;
+        background-image: url(../images/bg_digit4.png);
+}
+
+@keyframes digitFallAnimation1 {
+    from {
+
+        background-position-y: 0px;
+        opacity: 0.6;
+    }
+    to {
+        background-position-y: 2863px;
+        opacity: 0;
+    }
+}
+
+@keyframes digitFallAnimation2 {
+    from {
+        background-position-y: 0px;
+        opacity: 0.6;
+    }
+    to {
+        background-position-y: 2863px;
+        opacity: 0;
+    }
+}
+
+@keyframes digitFallAnimation3 {
+    from {
+        background-position-y: 0px;
+        opacity: 0.6;
+    }
+    to {
+        background-position-y: 3039px;
+        opacity: 0;
+    }
+}
+
+@keyframes digitFallAnimation4 {
+    from {
+        background-position-y: 0px;
+        opacity: 0.6;
+    }
+    to {
+        background-position-y: 3123px;
+        opacity: 0;
+    }
+}
+

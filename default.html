@@ -1,0 +1,584 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Jumbosoft: Where big ideas become even bigger software monopolies!</title>
+
+    <meta property="og:title" content="Jumbosoft" />
+    <meta property="og:type" content="game" />
+    <meta property="og:description" content="Take your turn at becoming the CEO of a major software company. Be warned, you have to work your way up the ranks first." />
+    <meta property="og:url" content="http://jumbosoft.azurewebsites.net" />
+    <meta property="og:image" content="http://jumbosoft.azurewebsites.net/images/logo.png" />
+
+    <script type="text/ecmascript" src="js/Math.js"></script>
+    <script type="text/ecmascript" src="js/Array.js"></script>
+    <script type="text/ecmascript" src="js/ClassList.js"></script>
+
+    <script type="text/ecmascript" src="js/TriggerableObject.js"></script>
+    <script type="text/ecmascript" src="js/TriggerManager.js"></script>
+    <script type="text/ecmascript" src="js/UnitList.js"></script>
+    <script type="text/ecmascript" src="js/Unit.js"></script>
+    <script type="text/ecmascript" src="js/Upgrade.js"></script>
+    <script type="text/ecmascript" src="js/Upgrades.js"></script>
+    <script type="text/ecmascript" src="js/Achievement.js"></script>
+    <script type="text/ecmascript" src="js/AchievementList.js"></script>
+    <script type="text/ecmascript" src="js/NewsItem.js"></script>
+    <script type="text/ecmascript" src="js/NewsList.js"></script>
+    <script type="text/ecmascript" src="js/RandomEventManager.js"></script>
+    <script type="text/ecmascript" src="js/RandomEvent.js"></script>
+    <script type="text/ecmascript" src="js/BugEvent.js"></script>
+    <script type="text/ecmascript" src="js/StockEvent.js"></script>
+    <script type="text/ecmascript" src="js/JumbosoftGame.js"></script>
+
+    <script type="text/ecmascript" src="js/ui/GameUI.js"></script>
+    <script type="text/ecmascript" src="js/ui/UnitUI.js"></script>
+    <script type="text/ecmascript" src="js/ui/NewsUI.js"></script>
+    <script type="text/ecmascript" src="js/ui/AchievementUI.js"></script>
+    <script type="text/ecmascript" src="js/ui/UpgradeUI.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="css/default.css" />
+
+    <script>
+        "use strict";
+        var _game = new JumbosoftGame();
+        var _cLine = 0;
+        function init() {
+            _game.init();
+            _game.loadGame();
+
+            // Setup the UI components
+            var disk = document.getElementById("disk");
+            disk.addEventListener("click", _game.click.bind(_game));
+            disk.addEventListener("click", dropLine);
+            disk.addEventListener("animationend", spinMore);
+            disk.addEventListener("webkitAnimationEnd", spinMore);
+
+            // By using an interval we'll better guarantee that we run against the clock.
+            setInterval(update, 30);
+        }
+
+        function update() {
+            _game.update();
+        }
+
+        function dropLine() {
+            var lineElement = document.createElement('div');
+            lineElement.className = "digit";
+            var randomLeft = Math.floor(Math.random() * 750) + "px";
+            lineElement.style.left = randomLeft;
+
+            if (_cLine < 10) {
+                lineElement.style.color = "red";
+            }
+            else if (_cLine < 20) {
+                lineElement.style.color = "orange";
+            }
+            else if (_cLine < 30) {
+                lineElement.style.color = "green";
+            }
+            else {
+                lineElement.style.color = "cyan";
+            }
+
+
+            var randomLength = Math.floor(Math.random() * 10) + 1;
+            var zeroOneString = "";
+            for (var i = 1; i < randomLength; i++) {
+                zeroOneString += "&#xFF10&#xFF11&#xFF10&#xFF11&#xFF10&#xFF11&#xFF10&#xFF11";
+            }
+
+            lineElement.innerHTML = zeroOneString;
+            lineElement.addEventListener("animationend", deleteSelf, false);
+            lineElement.addEventListener("webkitAnimationEnd", deleteSelf, false);
+            document.getElementById("digitHolder").appendChild(lineElement);
+            _cLine++;
+        }
+
+        function deleteSelf(e) {
+            e.target.parentNode.removeChild(e.target);
+            _cLine--;
+        }
+
+        function spinMore() {
+            var animationTime = 5 / Math.max(1, Math.baseLog(_game.stockTicker, 2));
+            var disk = document.getElementById("disk");
+            var localStyle = disk.style;
+
+            localStyle.animationDuration = animationTime.toFixed(2) + "s";
+            localStyle.webkitAnimationDuration = animationTime.toFixed(2) + "s";
+            disk.classList.toggle("secondary");
+        }
+
+        function addStock() {
+            _game.applyStocks(100000);
+        }
+
+        function containsChild(parent, child) {
+            var parentNode = child.parentNode;
+            while (parentNode !== null && parentNode != parent) {
+                parentNode = parentNode.parentNode;
+            }
+
+            if (parentNode === parent) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        function hitTest(evt) {
+            // first calculate the hit test coordinates relative to playCanvas
+            var curElement = evt.target;
+            var posX = evt.offsetX;
+            var posY = evt.offsetY;
+            var parentElement = document.getElementById("playCanvas");
+            while (curElement !== parentElement) {
+                posX += curElement.offsetLeft;
+                posY += curElement.offsetTop;
+                curElement = curElement.parentNode;
+            }
+
+            var hitTestTarget = null;
+            if (containsChild(document.getElementById("leftPanel"), evt.target)) {
+                var allUILeft = document.getElementsByClassName("left");
+                var sampleElement = allUILeft[0];
+                var centerOffsetX = sampleElement.offsetWidth / 2;
+                var centerOffsetY = sampleElement.offsetHeight / 2;
+                var distance = Math.max(centerOffsetX, centerOffsetY) * 0.9;
+
+                for (var i = 0; i < allUILeft.length; i++) {
+                    var targetElement = allUILeft[i];
+                    var centerX = targetElement.offsetLeft + centerOffsetX;
+                    var centerY = targetElement.offsetTop + centerOffsetY;
+                    if (Math.distance2d(centerX, centerY, posX, posY) < distance) {
+                        if (targetElement.upgradeUI) {
+                            hitTestTarget = targetElement;
+                        }
+                        break;
+                    }
+                }
+
+                // toggle the active style on the target element if hit an left ui, or turn it off if not hitting anything
+                if (hitTestTarget != null) {
+                    var number = hitTestTarget.id.replace("Left", "");
+                    var hitTestTargetLine = document.getElementById("Line" + number);
+
+                    hitTestTarget.classList.toggle("active");
+                    hitTestTargetLine.classList.toggle("active");
+                }
+
+                var allUILine = document.getElementsByClassName("line");
+                for (var i = 0; i < allUILine.length; i++) {
+                    if (allUILine[i] != hitTestTargetLine) {
+                        allUILine[i].classList.remove("active");
+                    }
+                }
+
+                for (var i = 0; i < allUILeft.length; i++) {
+                    if (allUILeft[i] != hitTestTarget) {
+                        allUILeft[i].classList.remove("active");
+                    }
+                }
+            }
+        }
+
+        // Utilize visibility. And reset visibility before calling "click". This doesn't support nesting, but prevents flashing
+        // if your overlay is not completely transparent. One example would be a gradient overlay that makes your elements appear
+        // to fade out at the edges of a container giving that carousel look.
+        function _clickThroughVis(evt) {
+            var localStyle = evt.target.style;
+            var oldVisibility = localStyle.display;
+            localStyle.visibility = "hidden";
+
+            var target = document.elementFromPoint(evt.pageX, evt.pageY);
+            // Specific to my implementation. I want to only click through on certain types of elements.
+            if (!target.classList.contains("achievement")) {
+                target = null;
+            }
+            localStyle.visibility = oldVisibility;
+
+            // Click is done here, after setting visibility back in order to prevent flashing.
+            target.click();
+        }
+        var _clickThrough = _clickThroughVis;
+
+    </script>
+</head>
+<body onload="init();" id="body">
+    <!-- Background -->
+    <div id="digitFallHolder"></div>
+
+    <div id="playCanvas" onclick="hitTest(event);">
+
+        <!-- Top Panel -->
+        <div id="top0" class="layout">
+            <div id="currentTitle"><span id="titleName"></span></div>
+            <div id="gameTime">Year: <span id="yearCount"></span>&nbsp;&nbsp;&nbsp;&nbsp;Month: <span id="monthCount">0</span>&nbsp;&nbsp;&nbsp;&nbsp;Day: <span id="dayCount">0</span></div>
+        </div>
+
+        <div id="top1" class="layout">
+            <div id="totalStock">Stock : <span id="stockCount">256,468,126</span></div>
+            <div id="SPS">Stock Per Second: <span id="SPSCount">16.9</span></div>
+            <div id="news">You make coffee for your teammates everyday</div>
+        </div>
+
+        <!-- Center Panel -->
+        <div id="disk"></div>
+
+        <!-- Left Panel -->
+        <div id="leftPanel">
+            <!-- left row -->
+            <div id="Left11" class="layout left">
+                <div id="Line11" class="layout line">
+                    <div class="itemName"></div>
+                    <div class="itemUpgrade"></div>
+                    <div class="itemDesc"></div>
+                </div>
+                <div class="itemCost"></div>
+            </div>
+            <div id="Left12" class="layout left">
+                <div id="Line12" class="layout line">
+                    <div class="itemName"></div>
+                    <div class="itemUpgrade"></div>
+                    <div class="itemDesc"></div>
+                </div>
+                <div class="itemCost"></div>
+            </div>
+            <div id="Left13" class="layout left">
+                <div id="Line13" class="layout line">
+                    <div class="itemName"></div>
+                    <div class="itemUpgrade"></div>
+                    <div class="itemDesc"></div>
+                </div>
+                <div class="itemCost"></div>
+            </div>
+            <div id="Left14" class="layout left">
+                <div id="Line14" class="layout line">
+                    <div class="itemName"></div>
+                    <div class="itemUpgrade"></div>
+                    <div class="itemDesc"></div>
+                </div>
+                <div class="itemCost"></div>
+            </div>
+            <div id="Left15" class="layout left">
+                <div id="Line15" class="layout line">
+                    <div class="itemName"></div>
+                    <div class="itemUpgrade"></div>
+                    <div class="itemDesc"></div>
+                </div>
+                <div class="itemCost"></div>
+            </div>
+            <!-- right row -->
+            <div id="Left21" class="layout left">
+                <div id="Line21" class="layout line">
+                    <div class="itemName itemName2"></div>
+                    <div class="itemUpgrade itemUpgrade2"></div>
+                    <div class="itemDesc itemDesc2"></div>
+                </div>
+                <div class="itemCost"></div>
+            </div>
+            <div id="Left22" class="layout left">
+                <div id="Line22" class="layout line">
+                    <div class="itemName itemName2"></div>
+                    <div class="itemUpgrade itemUpgrade2"></div>
+                    <div class="itemDesc itemDesc2"></div>
+                </div>
+                <div class="itemCost"></div>
+            </div>
+            <div id="Left23" class="layout left">
+                <div id="Line23" class="layout line">
+                    <div class="itemName itemName2"></div>
+                    <div class="itemUpgrade itemUpgrade2"></div>
+                    <div class="itemDesc itemDesc2"></div>
+                </div>
+                <div class="itemCost"></div>
+            </div>
+            <div id="Left24" class="layout left">
+                <div id="Line24" class="layout line">
+                    <div class="itemName itemName2"></div>
+                    <div class="itemUpgrade itemUpgrade2"></div>
+                    <div class="itemDesc itemDesc2"></div>
+                </div>
+                <div class="itemCost"></div>
+            </div>
+            <div id="Left25" class="layout left">
+                <div id="Line25" class="layout line">
+                    <div class="itemName itemName2"></div>
+                    <div class="itemUpgrade itemUpgrade2"></div>
+                    <div class="itemDesc itemDesc2"></div>
+                </div>
+                <div class="itemCost"></div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div id="rightPanel">
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Right1" class="rightSVG">
+                <defs>
+                    <filter id="blur">
+                        <feGaussianBlur stdDeviation="4" in="SourceGraphic" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur"></feMergeNode>
+                            <feMergeNode in="SourceGraphic"></feMergeNode>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <polygon points="10,10 300,10 350,60 20,60" style="filter: url(#blur); stroke-width: 3;" />
+
+                <line x1="46.25" y1="10" x2="61.25" y2="60" style="stroke-width: 1" />
+                <line x1="82.5" y1="10" x2="102.5" y2="60" style="stroke-width: 1" />
+                <line x1="118.75" y1="10" x2="143.75" y2="60" style="stroke-width: 1" />
+                <line x1="155" y1="10" x2="185" y2="60" style="stroke-width: 1" />
+                <line x1="191.25" y1="10" x2="226.25" y2="60" style="stroke-width: 1" />
+                <line x1="227.5" y1="10" x2="267.5" y2="60" style="stroke-width: 1" />
+                <line x1="263.75" y1="10" x2="308.75" y2="60" style="stroke-width: 1" />
+
+                <line x1="12.25" y1="22" x2="313" y2="22" style="stroke-width: 1" />
+                <line x1="15" y1="35" x2="327" y2="35" style="stroke-width: 1" />
+                <line x1="17" y1="50" x2="339" y2="50" style="stroke-width: 1" />
+
+                <text x="25" y="25" class="skillName"></text>
+                <text x="30" y="50" class="skillCost"></text>
+                <text x="280" y="50" class="skillUnit"></text>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Right2" class="rightSVG">
+                <defs>
+                    <filter id="blur">
+                        <feGaussianBlur stdDeviation="4" in="SourceGraphic" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur"></feMergeNode>
+                            <feMergeNode in="SourceGraphic"></feMergeNode>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <polygon points="10,10 300,10 350,60 20,60" style="filter: url(#blur); stroke-width: 3;" />
+
+                <line x1="46.25" y1="10" x2="61.25" y2="60" style="stroke-width: 1" />
+                <line x1="82.5" y1="10" x2="102.5" y2="60" style="stroke-width: 1" />
+                <line x1="118.75" y1="10" x2="143.75" y2="60" style="stroke-width: 1" />
+                <line x1="155" y1="10" x2="185" y2="60" style="stroke-width: 1" />
+                <line x1="191.25" y1="10" x2="226.25" y2="60" style="stroke-width: 1" />
+                <line x1="227.5" y1="10" x2="267.5" y2="60" style="stroke-width: 1" />
+                <line x1="263.75" y1="10" x2="308.75" y2="60" style="stroke-width: 1" />
+
+                <line x1="12.25" y1="22" x2="313" y2="22" style="stroke-width: 1" />
+                <line x1="15" y1="35" x2="327" y2="35" style="stroke-width: 1" />
+                <line x1="17" y1="50" x2="339" y2="50" style="stroke-width: 1" />
+
+                <text x="25" y="25" class="skillName"></text>
+                <text x="30" y="50" class="skillCost"></text>
+                <text x="280" y="50" class="skillUnit"></text>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Right3" class="rightSVG">
+                <defs>
+                    <filter id="blur">
+                        <feGaussianBlur stdDeviation="4" in="SourceGraphic" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur"></feMergeNode>
+                            <feMergeNode in="SourceGraphic"></feMergeNode>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <polygon points="10,10 300,10 350,60 20,60" style="filter: url(#blur); stroke-width: 3;" />
+
+                <line x1="46.25" y1="10" x2="61.25" y2="60" style="stroke-width: 1" />
+                <line x1="82.5" y1="10" x2="102.5" y2="60" style="stroke-width: 1" />
+                <line x1="118.75" y1="10" x2="143.75" y2="60" style="stroke-width: 1" />
+                <line x1="155" y1="10" x2="185" y2="60" style="stroke-width: 1" />
+                <line x1="191.25" y1="10" x2="226.25" y2="60" style="stroke-width: 1" />
+                <line x1="227.5" y1="10" x2="267.5" y2="60" style="stroke-width: 1" />
+                <line x1="263.75" y1="10" x2="308.75" y2="60" style="stroke-width: 1" />
+
+                <line x1="12.25" y1="22" x2="313" y2="22" style="stroke-width: 1" />
+                <line x1="15" y1="35" x2="327" y2="35" style="stroke-width: 1" />
+                <line x1="17" y1="50" x2="339" y2="50" style="stroke-width: 1" />
+
+                <text x="25" y="25" class="skillName"></text>
+                <text x="30" y="50" class="skillCost"></text>
+                <text x="280" y="50" class="skillUnit"></text>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Right4" class="rightSVG">
+                <defs>
+                    <filter id="blur">
+                        <feGaussianBlur stdDeviation="4" in="SourceGraphic" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur"></feMergeNode>
+                            <feMergeNode in="SourceGraphic"></feMergeNode>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <polygon points="10,10 300,10 350,60 20,60" style="filter: url(#blur); stroke-width: 3;" />
+
+                <line x1="46.25" y1="10" x2="61.25" y2="60" style="stroke-width: 1" />
+                <line x1="82.5" y1="10" x2="102.5" y2="60" style="stroke-width: 1" />
+                <line x1="118.75" y1="10" x2="143.75" y2="60" style="stroke-width: 1" />
+                <line x1="155" y1="10" x2="185" y2="60" style="stroke-width: 1" />
+                <line x1="191.25" y1="10" x2="226.25" y2="60" style="stroke-width: 1" />
+                <line x1="227.5" y1="10" x2="267.5" y2="60" style="stroke-width: 1" />
+                <line x1="263.75" y1="10" x2="308.75" y2="60" style="stroke-width: 1" />
+
+                <line x1="12.25" y1="22" x2="313" y2="22" style="stroke-width: 1" />
+                <line x1="15" y1="35" x2="327" y2="35" style="stroke-width: 1" />
+                <line x1="17" y1="50" x2="339" y2="50" style="stroke-width: 1" />
+
+                <text x="25" y="25" class="skillName"></text>
+                <text x="30" y="50" class="skillCost"></text>
+                <text x="280" y="50" class="skillUnit"></text>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Right5" class="rightSVG">
+                <defs>
+                    <filter id="blur">
+                        <feGaussianBlur stdDeviation="4" in="SourceGraphic" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur"></feMergeNode>
+                            <feMergeNode in="SourceGraphic"></feMergeNode>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <polygon points="10,10 300,10 350,60 20,60" style="filter: url(#blur); stroke-width: 3;" />
+
+                <line x1="46.25" y1="10" x2="61.25" y2="60" style="stroke-width: 1" />
+                <line x1="82.5" y1="10" x2="102.5" y2="60" style="stroke-width: 1" />
+                <line x1="118.75" y1="10" x2="143.75" y2="60" style="stroke-width: 1" />
+                <line x1="155" y1="10" x2="185" y2="60" style="stroke-width: 1" />
+                <line x1="191.25" y1="10" x2="226.25" y2="60" style="stroke-width: 1" />
+                <line x1="227.5" y1="10" x2="267.5" y2="60" style="stroke-width: 1" />
+                <line x1="263.75" y1="10" x2="308.75" y2="60" style="stroke-width: 1" />
+
+                <line x1="12.25" y1="22" x2="313" y2="22" style="stroke-width: 1" />
+                <line x1="15" y1="35" x2="327" y2="35" style="stroke-width: 1" />
+                <line x1="17" y1="50" x2="339" y2="50" style="stroke-width: 1" />
+
+                <text x="25" y="25" class="skillName"></text>
+                <text x="30" y="50" class="skillCost"></text>
+                <text x="280" y="50" class="skillUnit"></text>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Right6" class="rightSVG">
+                <defs>
+                    <filter id="blur">
+                        <feGaussianBlur stdDeviation="4" in="SourceGraphic" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur"></feMergeNode>
+                            <feMergeNode in="SourceGraphic"></feMergeNode>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <polygon points="10,10 300,10 350,60 20,60" style="filter: url(#blur); stroke-width: 3;" />
+
+                <line x1="46.25" y1="10" x2="61.25" y2="60" style="stroke-width: 1" />
+                <line x1="82.5" y1="10" x2="102.5" y2="60" style="stroke-width: 1" />
+                <line x1="118.75" y1="10" x2="143.75" y2="60" style="stroke-width: 1" />
+                <line x1="155" y1="10" x2="185" y2="60" style="stroke-width: 1" />
+                <line x1="191.25" y1="10" x2="226.25" y2="60" style="stroke-width: 1" />
+                <line x1="227.5" y1="10" x2="267.5" y2="60" style="stroke-width: 1" />
+                <line x1="263.75" y1="10" x2="308.75" y2="60" style="stroke-width: 1" />
+
+                <line x1="12.25" y1="22" x2="313" y2="22" style="stroke-width: 1" />
+                <line x1="15" y1="35" x2="327" y2="35" style="stroke-width: 1" />
+                <line x1="17" y1="50" x2="339" y2="50" style="stroke-width: 1" />
+
+                <text x="25" y="25" class="skillName"></text>
+                <text x="30" y="50" class="skillCost"></text>
+                <text x="280" y="50" class="skillUnit"></text>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Right7" class="rightSVG">
+                <defs>
+                    <filter id="blur">
+                        <feGaussianBlur stdDeviation="4" in="SourceGraphic" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur"></feMergeNode>
+                            <feMergeNode in="SourceGraphic"></feMergeNode>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <polygon points="10,10 300,10 350,60 20,60" style="filter: url(#blur); stroke-width: 3;" />
+
+                <line x1="46.25" y1="10" x2="61.25" y2="60" style="stroke-width: 1" />
+                <line x1="82.5" y1="10" x2="102.5" y2="60" style="stroke-width: 1" />
+                <line x1="118.75" y1="10" x2="143.75" y2="60" style="stroke-width: 1" />
+                <line x1="155" y1="10" x2="185" y2="60" style="stroke-width: 1" />
+                <line x1="191.25" y1="10" x2="226.25" y2="60" style="stroke-width: 1" />
+                <line x1="227.5" y1="10" x2="267.5" y2="60" style="stroke-width: 1" />
+                <line x1="263.75" y1="10" x2="308.75" y2="60" style="stroke-width: 1" />
+
+                <line x1="12.25" y1="22" x2="313" y2="22" style="stroke-width: 1" />
+                <line x1="15" y1="35" x2="327" y2="35" style="stroke-width: 1" />
+                <line x1="17" y1="50" x2="339" y2="50" style="stroke-width: 1" />
+
+                <text x="25" y="25" class="skillName"></text>
+                <text x="30" y="50" class="skillCost"></text>
+                <text x="280" y="50" class="skillUnit"></text>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Right8" class="rightSVG">
+                <defs>
+                    <filter id="blur">
+                        <feGaussianBlur stdDeviation="4" in="SourceGraphic" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur"></feMergeNode>
+                            <feMergeNode in="SourceGraphic"></feMergeNode>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <polygon points="10,10 300,10 350,60 20,60" style="filter: url(#blur); stroke-width: 3;" />
+
+                <line x1="46.25" y1="10" x2="61.25" y2="60" style="stroke-width: 1" />
+                <line x1="82.5" y1="10" x2="102.5" y2="60" style="stroke-width: 1" />
+                <line x1="118.75" y1="10" x2="143.75" y2="60" style="stroke-width: 1" />
+                <line x1="155" y1="10" x2="185" y2="60" style="stroke-width: 1" />
+                <line x1="191.25" y1="10" x2="226.25" y2="60" style="stroke-width: 1" />
+                <line x1="227.5" y1="10" x2="267.5" y2="60" style="stroke-width: 1" />
+                <line x1="263.75" y1="10" x2="308.75" y2="60" style="stroke-width: 1" />
+
+                <line x1="12.25" y1="22" x2="313" y2="22" style="stroke-width: 1" />
+                <line x1="15" y1="35" x2="327" y2="35" style="stroke-width: 1" />
+                <line x1="17" y1="50" x2="339" y2="50" style="stroke-width: 1" />
+
+                <text x="25" y="25" class="skillName"></text>
+                <text x="30" y="50" class="skillCost"></text>
+                <text x="280" y="50" class="skillUnit"></text>
+            </svg>
+            <!--
+            <div id="Right1" class="layout right"><div class="skillName">Manual Testing</div><div class="skillCost">10</div><div class="skillUnit" id="skillUnit1">x0</div></div>
+            <div id="Right2" class="layout right"><div class="skillName">Automations</div><div class="skillCost">100</div><div class="skillUnit" id="skillUnit2">x0</div></div>
+            <div id="Right3" class="layout right"><div class="skillName">Book Reading</div><div class="skillCost">1000</div><div class="skillUnit" id="skillUnit3">x0</div></div>
+            <div id="Right4" class="layout right"><div class="skillName">Tools Development</div><div class="skillCost">10000</div><div class="skillUnit" id="skillUnit4">x0</div></div>
+            <div id="Right5" class="layout right"><div class="skillName">Book Reading</div><div class="skillCost">1000</div><div class="skillUnit" id="Div2">x0</div></div>
+            <div id="Right6" class="layout right"><div class="skillName">Tools Development</div><div class="skillCost">10000</div><div class="skillUnit" id="Div4">x0</div></div>
+            -->
+        </div>
+
+        <div id="bottomPanel">
+            <div id="bottomDescriptionPanel">
+                <div class="name"></div>
+                <div class="description"></div>
+            </div>
+            <div id="scrollWrapper">
+                <div id="upgradePanel">
+                </div>
+                <div id="achievementPanel">
+                    <div class="leftBump"></div>
+                    <div class="rightBump"></div>
+                </div>
+            </div>
+            <div class="leftBlend" onclick="_clickThrough(event);"></div>
+            <div class="rightBlend" onclick="_clickThrough(event)"></div>
+        </div>
+
+        <!-- Digit Holder -->
+        <div id="digitHolder"></div>
+
+        <div id="copyright">Copyright © 2013 Origame LLC., All Rights Reserved.</div>
+    </div>
+    <button class="debug" style="top: 0px;" onclick="addStock();">Stock + 100000</button>
+    <button class="debug" style="top: 25px;" onclick="_game.resetGame();">Reset Game State</button>
+    <button class="debug" style="top: 50px;" onclick="_game.saveGame();">Save Game State</button>
+</body>
+</html>
